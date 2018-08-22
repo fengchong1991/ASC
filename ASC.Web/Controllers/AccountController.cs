@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using ASC.Web.Data;
+using Microsoft.Extensions.Options;
+using ASC.Web.Configuration;
 
 namespace ASC.Web.Controllers
 {
@@ -14,11 +16,16 @@ namespace ASC.Web.Controllers
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger _logger;
+        private readonly IOptions<ApplicationSettings> _settings;
 
-        public AccountController(SignInManager<ApplicationUser> signInManager, ILogger<AccountController> logger)
+        public AccountController(
+            SignInManager<ApplicationUser> signInManager,
+            ILogger<AccountController> logger,
+            IOptions<ApplicationSettings> settings)
         {
             _signInManager = signInManager;
             _logger = logger;
+            _settings = settings; 
         }
 
         [HttpPost]

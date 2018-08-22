@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ASC.Web.Data;
 using ASC.Web.Services;
+using ASC.Web.Configuration;
 
 namespace ASC.Web
 {
@@ -40,6 +41,9 @@ namespace ASC.Web
                     options.Conventions.AuthorizePage("/Account/Logout");
                 });
 
+            services.AddOptions();
+            services.Configure<ApplicationSettings>(Configuration.GetSection("AppSettings"));
+
             // Register no-op EmailSender used by account confirmation and password reset during development
             // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=532713
             services.AddSingleton<IEmailSender, EmailSender>();
@@ -63,7 +67,12 @@ namespace ASC.Web
 
             app.UseAuthentication();
 
-            app.UseMvc();
+            app.UseMvc(routes =>
+            {
+                routes.MapRoute(
+                    name: "default",
+                    template: "{controller=Home}/{action=Index}/{id?}");
+            });
         }
     }
 }
