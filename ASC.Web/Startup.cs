@@ -54,8 +54,8 @@ namespace ASC.Web
 
             services.AddOptions();
             services.Configure<ApplicationSettings>(Configuration.GetSection("AppSettings"));
+            services.AddSession();
             services.AddMvc();
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -74,7 +74,7 @@ namespace ASC.Web
             app.UseStaticFiles();
 
             app.UseAuthentication();
-
+            app.UseSession();
             app.UseMvc(routes =>
             {
                 routes.MapRoute(

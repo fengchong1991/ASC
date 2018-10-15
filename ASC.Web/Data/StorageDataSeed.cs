@@ -69,10 +69,10 @@ namespace ASC.Web.Data
                     EmailConfirmed = true,
                     LockoutEnabled = false
                 };
-                IdentityResult result = await userManager.CreateAsync(user, options.Value.
-                EngineerPassword);
-                await userManager.AddClaimAsync(user, new System.Security.Claims.Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", options.Value.EngineerEmail));
-                await userManager.AddClaimAsync(user, new System.Security.Claims.Claim("IsActive", "True"));
+
+                IdentityResult result = await userManager.CreateAsync(user, options.Value.EngineerPassword);
+                var result2 = await userManager.AddClaimAsync(user, new System.Security.Claims.Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", options.Value.EngineerEmail));
+                var result3 = await userManager.AddClaimAsync(user, new System.Security.Claims.Claim("IsActive", "True"));
                 // Add Service Engineer to Engineer role
                 if (result.Succeeded)
                 {

@@ -122,6 +122,8 @@
 </form>
 
 @section Scripts{
+    @RenderSection("Scripts", required: false)
+
     <script type="text/javascript">
         $(function () {
             $('#ancrLogout').click(function () {

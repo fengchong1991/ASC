@@ -211,13 +211,23 @@ namespace ASC.Web.Controllers
         [Authorize(Roles="Admin")]
         public async Task<IActionResult> ServiceEngineers()
         {
-            var serviceEngineers = await _userManager.GetUsersInRoleAsync(Roles.Engineer.ToString());
+            var engineers = await _userManager.GetUsersInRoleAsync(Roles.Engineer.ToString());
+
+            var engineerEmails = engineers.Select(e => e.Email);
+
+            List<Task<ApplicationUser>> users = new List<Task<ApplicationUser>>();
+            foreach(var e in engineerEmails)
+            {
+                users.Add(_userManager.FindByEmailAsync(e));
+            }            
+            
+            
 
             // Hold all service engineers in session
-            HttpContext.Session.SetSession("ServiceEngineers", serviceEngineers);
+            HttpContext.Session.SetSession("ServiceEngineers", users);
             return View(new ServiceEngineerViewModel()
             {
-                ServiceEngineers = serviceEngineers?.ToList(),
+                //ServiceEngineers = users,
                 Registration = new ServiceEngineerRegistrationViewModel() { IsEdit = false }
             });
         }
