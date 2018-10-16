@@ -219,15 +219,15 @@ namespace ASC.Web.Controllers
             foreach(var e in engineerEmails)
             {
                 users.Add(_userManager.FindByEmailAsync(e));
-            }            
-            
-            
+            }
 
+            var engineerUsers = await Task.WhenAll(users);
+                        
             // Hold all service engineers in session
-            HttpContext.Session.SetSession("ServiceEngineers", users);
+            HttpContext.Session.SetSession("ServiceEngineers", engineerUsers);
             return View(new ServiceEngineerViewModel()
             {
-                //ServiceEngineers = users,
+                ServiceEngineers = engineerUsers.ToList(),
                 Registration = new ServiceEngineerRegistrationViewModel() { IsEdit = false }
             });
         }
@@ -235,7 +235,7 @@ namespace ASC.Web.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> SeriviceEngineers(ServiceEngineerViewModel serviceEngineer)
+        public async Task<IActionResult> ServiceEngineers(ServiceEngineerViewModel serviceEngineer)
         {
             serviceEngineer.ServiceEngineers = HttpContext.Session.GetSession<List<ApplicationUser>>("ServiceEngineers");
 
@@ -260,8 +260,7 @@ namespace ASC.Web.Controllers
 
                 // Update Password
                 var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-                IdentityResult passwordResult = await _userManager.ResetPasswordAsync(user, token,
-                serviceEngineer.Registration.Password);
+                IdentityResult passwordResult = await _userManager.ResetPasswordAsync(user, token, serviceEngineer.Registration.Password);
 
                 if (!passwordResult.Succeeded)
                 {
@@ -273,10 +272,8 @@ namespace ASC.Web.Controllers
                 // Update claims
                 user = await _userManager.FindByEmailAsync(serviceEngineer.Registration.Email);
                 var isActiveClaim = user.Claims.SingleOrDefault(p => p.ClaimType == "IsActive");
-                var removeClaimResult = await _userManager.RemoveClaimAsync(user,
-                new System.Security.Claims.Claim(isActiveClaim.ClaimType, isActiveClaim.ClaimValue));
-                var addClaimResult = await _userManager.AddClaimAsync(user,
-                new System.Security.Claims.Claim(isActiveClaim.ClaimType, serviceEngineer.Registration.IsActive.ToString()));
+                var removeClaimResult = await _userManager.RemoveClaimAsync(user, new System.Security.Claims.Claim(isActiveClaim.ClaimType, isActiveClaim.ClaimValue));
+                var addClaimResult = await _userManager.AddClaimAsync(user, new System.Security.Claims.Claim(isActiveClaim.ClaimType, serviceEngineer.Registration.IsActive.ToString()));
             }
             else
             {
@@ -287,43 +284,37 @@ namespace ASC.Web.Controllers
                     Email = serviceEngineer.Registration.Email,
                     EmailConfirmed = true
                 };
-                IdentityResult result = await _userManager.CreateAsync(user, serviceEngineer.
-                Registration.Password);
+                IdentityResult result = await _userManager.CreateAsync(user, serviceEngineer.Registration.Password);
                 await _userManager.AddClaimAsync(user, new System.Security.Claims.Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", serviceEngineer.Registration.Email));
                 await _userManager.AddClaimAsync(user, new System.Security.Claims.Claim("IsActive", serviceEngineer.Registration.IsActive.ToString()));
+
                 if (!result.Succeeded)
                 {
-                    result.Errors.ToList().ForEach(p => ModelState.AddModelError("",
-                    p.Description));
+                    result.Errors.ToList().ForEach(p => ModelState.AddModelError("", p.Description));
                     return View(serviceEngineer);
                 }
                 // Assign user to Engineer Role
                 var roleResult = await _userManager.AddToRoleAsync(user, Roles.Engineer.ToString());
                 if (!roleResult.Succeeded)
                 {
-                    roleResult.Errors.ToList().ForEach(p => ModelState.AddModelError("",
-                    p.Description));
+                    roleResult.Errors.ToList().ForEach(p => ModelState.AddModelError("", p.Description));
                     return View(serviceEngineer);
                 }
 
                 if (serviceEngineer.Registration.IsActive)
                 {
-                    await _emailSender.SendEmailAsync(serviceEngineer.Registration.Email,
-                    "Account Created/Modified", $"Email : {serviceEngineer.Registration.Email} /n Passowrd : {serviceEngineer.Registration.Password}");
+                    await _emailSender.SendEmailAsync(serviceEngineer.Registration.Email, "Account Created/Modified", $"Email : {serviceEngineer.Registration.Email} /n Passowrd : {serviceEngineer.Registration.Password}");
                 }
                 else
                 {
-                    await _emailSender.SendEmailAsync(serviceEngineer.Registration.Email,
-                    "Account Deactivated",
-                    $"Your account has been deactivated.");
+                    await _emailSender.SendEmailAsync(serviceEngineer.Registration.Email, "Account Deactivated", $"Your account has been deactivated.");
                 }
                 return RedirectToAction("ServiceEngineers");
             }
 
             if (serviceEngineer.Registration.IsActive)
             {
-                await _emailSender.SendEmailAsync(serviceEngineer.Registration.Email,
-                "Account Created/Modified", $"Email : {serviceEngineer.Registration.Email} /n Passowrd : {serviceEngineer.Registration.Password}");
+                await _emailSender.SendEmailAsync(serviceEngineer.Registration.Email, "Account Created/Modified", $"Email : {serviceEngineer.Registration.Email} /n Passowrd : {serviceEngineer.Registration.Password}");
             }
             else
             {
