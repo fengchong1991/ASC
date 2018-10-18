@@ -47,7 +47,13 @@ namespace ASC.Web
                 }))
                 .AddDefaultTokenProviders()
                 .CreateAzureTablesIfNotExists<ApplicationDbContext>(); //can remove after first run;
-            
+
+            services.AddAuthentication().AddGoogle(g =>
+            {
+                g.ClientId = Configuration["Google:Identity:ClientId"];
+                g.ClientSecret = Configuration["Google:Identity:ClientSecret"];
+            });
+
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
@@ -75,6 +81,7 @@ namespace ASC.Web
 
             app.UseAuthentication();
             app.UseSession();
+
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
