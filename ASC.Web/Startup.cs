@@ -11,6 +11,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using ASC.DataAccess.Interfaces;
+using ASC.DataAccess;
+using System.Reflection;
+using System.Linq;
+using ASC.Business.Interfaces;
+using ASC.Business;
+using AutoMapper;
 
 namespace ASC.Web
 {
@@ -57,7 +64,11 @@ namespace ASC.Web
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddScoped<IUnitOfWork>(p => new UnitOfWork(Configuration.GetSection("ConnectionStrings:DefaultConnection").Value));
+            services.AddScoped<IMasterDataOperations, MasterDataOperations>();
 
+
+            services.AddAutoMapper();
             services.AddOptions();
             services.Configure<ApplicationSettings>(Configuration.GetSection("AppSettings"));
             services.AddSession();
@@ -65,7 +76,7 @@ namespace ASC.Web
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IUnitOfWork unitOfWork)
         {
             if (env.IsDevelopment())
             {
@@ -88,6 +99,15 @@ namespace ASC.Web
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+
+            var models = Assembly.Load(new AssemblyName("ASC.Models")).GetTypes().Where(type => type.Namespace == "ASC.Models.Models");
+
+            foreach(var model in models)
+            {
+                var repository = Activator.CreateInstance(typeof(Repository<>).MakeGenericType(model), unitOfWork);
+                MethodInfo method = typeof(Repository<>).MakeGenericType(model).GetMethod("CreateTableAsync");
+                method.Invoke(repository, null);
+            }
         }
     }
 }
