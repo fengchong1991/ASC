@@ -1,5 +1,5 @@
 ﻿using ASC.Models.Models;
-using ASC.Web.Models.MasterDataKeyViewModels;
+using ASC.Web.Models.MasterDataViewModels;
 using AutoMapper;
 using System;
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ namespace ASC.Web.Models.MappingProfile
     {
         public MappingProfile()
         {
-            CreateMap<MasterDataKey, MasterDateKeyViewModel>().ReverseMap();
+            CreateMap<MasterDataKey, MasterDataKeyViewModel>().ReverseMap();
         }
     }
 }

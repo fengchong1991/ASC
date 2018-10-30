@@ -4,9 +4,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ASC.Web.Models.MasterDataKeyViewModels
+namespace ASC.Web.Models.MasterDataViewModels
 {
-    public class MasterDateKeyViewModel
+    public class MasterDataKeyViewModel
     {
         public string RowKey { get; set; }
         public string PartitionKey { get; set; }
