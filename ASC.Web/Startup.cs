@@ -18,6 +18,7 @@ using System.Linq;
 using ASC.Business.Interfaces;
 using ASC.Business;
 using AutoMapper;
+using Newtonsoft.Json.Serialization;
 
 namespace ASC.Web
 {
@@ -72,7 +73,7 @@ namespace ASC.Web
             services.AddOptions();
             services.Configure<ApplicationSettings>(Configuration.GetSection("AppSettings"));
             services.AddSession();
-            services.AddMvc();
+            services.AddMvc().AddJsonOptions(o => o.SerializerSettings.ContractResolver = new DefaultContractResolver());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

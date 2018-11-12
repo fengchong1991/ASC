@@ -13,6 +13,7 @@ namespace ASC.Web.Models.MappingProfile
         public MappingProfile()
         {
             CreateMap<MasterDataKey, MasterDataKeyViewModel>().ReverseMap();
+            CreateMap<MasterDataValue, MasterDataValueViewModel>().ReverseMap();
         }
     }
 }
