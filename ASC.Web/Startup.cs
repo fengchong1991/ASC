@@ -67,17 +67,22 @@ namespace ASC.Web
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddScoped<IUnitOfWork>(p => new UnitOfWork(Configuration.GetSection("ConnectionStrings:DefaultConnection").Value));
             services.AddScoped<IMasterDataOperations, MasterDataOperations>();
-
+            services.AddScoped<IMasterDataCacheOperations, MasterDataCacheOperations>();
 
             services.AddAutoMapper();
             services.AddOptions();
             services.Configure<ApplicationSettings>(Configuration.GetSection("AppSettings"));
             services.AddSession();
             services.AddMvc().AddJsonOptions(o => o.SerializerSettings.ContractResolver = new DefaultContractResolver());
+            services.AddDistributedRedisCache(options =>
+                {
+                    options.Configuration = Configuration.GetSection("CacheSettings:CacheConnectionString").Value;
+                    options.InstanceName = Configuration.GetSection("CacheSettings:CacheInstance").Value;
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IUnitOfWork unitOfWork)
+        public async void Configure(IApplicationBuilder app, IHostingEnvironment env, IUnitOfWork unitOfWork, IMasterDataCacheOperations masterDataCacheOperations)
         {
             if (env.IsDevelopment())
             {
@@ -109,6 +114,8 @@ namespace ASC.Web
                 MethodInfo method = typeof(Repository<>).MakeGenericType(model).GetMethod("CreateTableAsync");
                 method.Invoke(repository, null);
             }
+
+            await masterDataCacheOperations.CreateMasterDataCache();
         }
     }
 }
