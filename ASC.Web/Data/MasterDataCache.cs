@@ -34,6 +34,10 @@ namespace ASC.Web.Data
             _masterData = masterData;
         }
 
+        /// <summary>
+        /// Call this method to create or invalidate current cache
+        /// </summary>
+        /// <returns></returns>
         public async Task CreateMasterDataCache()
         {
             var masterDataCache = new MasterDataCache

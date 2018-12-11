@@ -18,7 +18,7 @@ using System.Security.Claims;
 namespace ASC.Web.Controllers
 {
     [Route("[controller]/[action]")]
-    public class AccountController : BaseController
+    public class AccountController : Controller
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
@@ -111,7 +111,7 @@ namespace ASC.Web.Controllers
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
-            //_logger.LogInformation("User logged out.");
+            _logger.LogInformation(4, "User logged out.");
             return RedirectToAction("Index", "Home");
         }
 
