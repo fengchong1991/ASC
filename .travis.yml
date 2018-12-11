@@ -2,15 +2,8 @@ language: csharp
 dist: trusty
 sudo: required
 mono: none
-dotnet: 1.0.3
+dotnet: 2.0.0
 script:
-  - dotnet restore -s https://dotnet.myget.org/F/aspnetcore-dev/api/v3/index.json -s https://api.nuget.org/v3/index.json
+  - dotnet restore
   - dotnet test ./ASC.Tests/ASC.Tests.csproj
   - dotnet build
-notifications:
-  email:
-    recipients:
-    - autoservicenternew@gmail.com
-    - automobileservicecenterdev@gmail.com
-    on_success: always
-    on_failure: always
