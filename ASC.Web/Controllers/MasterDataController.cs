@@ -45,7 +45,7 @@ namespace ASC.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> MasterKeys(MasterKeysViewModel masterKeys)
         {
-            masterKeys.MasterKeys = HttpContext.Session.GetSession<List<MasterDataKeyViewModel>> ("MasterKeys");
+            masterKeys.MasterKeys = HttpContext.Session.GetSession<List<MasterDataKeyViewModel>>("MasterKeys");
 
             if (!ModelState.IsValid)
             {
