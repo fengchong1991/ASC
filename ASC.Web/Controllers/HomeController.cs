@@ -64,8 +64,6 @@ namespace ASC.Web.Controllers
             {
                 return RedirectToAction("Login", nameof(AccountController));
             }
-
-            return View();
         }
     }
 }
